@@ -1,56 +1,62 @@
+" python support
+let g:python2_host_prog = '/usr/local/bin/python'
+let g:python3_host_prog = '/usr/local/bin/python3'
+
 " dein setup
 set runtimepath^=~/.config/nvim/dein/repos/github.com/Shougo/dein.vim/
-call dein#begin(expand('~/.cache/dein/'))
+if dein#load_state(expand('~/.cache/dein'))
+	call dein#begin(expand('~/.cache/dein/'))
 
-" 'feature' packages
-call dein#add('Shougo/dein.vim')
-call dein#add('Shougo/unite.vim')
-call dein#add('Shougo/vimfiler.vim')
-call dein#add('Shougo/deoplete.nvim')
-call dein#add('neomake/neomake')
-call dein#add('tpope/vim-fugitive')
-call dein#add('itchyny/lightline.vim')
-call dein#add('bling/vim-bufferline')
-call dein#add('mileszs/ack.vim')
-call dein#add('embear/vim-localvimrc')
-call dein#add('qpkorr/vim-bufkill')
-call dein#add('t9md/vim-choosewin')
-call dein#add('justinmk/vim-sneak')
+	" 'feature' packages
+	call dein#add('Shougo/dein.vim')
+	call dein#add('Shougo/unite.vim')
+	call dein#add('Shougo/vimfiler.vim')
+	call dein#add('Shougo/deoplete.nvim')
+	call dein#add('neomake/neomake')
+	call dein#add('tpope/vim-fugitive')
+	call dein#add('itchyny/lightline.vim')
+	call dein#add('bling/vim-bufferline')
+	call dein#add('mileszs/ack.vim')
+	call dein#add('embear/vim-localvimrc')
+	call dein#add('qpkorr/vim-bufkill')
+	call dein#add('t9md/vim-choosewin')
+	call dein#add('justinmk/vim-sneak')
+	call dein#add('editorconfig/editorconfig-vim')
+	call dein#add('floobits/floobits-neovim')
 
-" color schemes
-call dein#add('mhartington/oceanic-next')
-call dein#add('tyrannicaltoucan/vim-deep-space')
-call dein#add('notpratheek/vim-luna')
-call dein#add('vim-scripts/oceandeep')
-call dein#add('itchyny/landscape.vim')
+	" color schemes
+	call dein#add('mhartington/oceanic-next')
+	call dein#add('tyrannicaltoucan/vim-deep-space')
+	call dein#add('notpratheek/vim-luna')
+	call dein#add('vim-scripts/oceandeep')
+	call dein#add('itchyny/landscape.vim')
 
-" my plugins
-call dein#add('/Users/jackson/Projects/deoplete-swift')
+	" filetype stuff
+	call dein#add('rust-lang/rust.vim')
+	call dein#add('zah/nim.vim')
+	call dein#add('toyamarinyon/vim-swift')
+	call dein#add('mxw/vim-jsx')
+	call dein#add('sheerun/vim-json')
+	call dein#add('sheerun/yajs.vim')
+	call dein#add('othree/html5.vim')
+	call dein#add('jdonaldson/vaxe')
+	call dein#add('tpope/vim-git')
+	call dein#add('sudar/vim-arduino-syntax')
+	call dein#add('neovimhaskell/haskell-vim')
+	call dein#add('robotvert/vim-nginx')
+	call dein#add('tpope/vim-markdown')
+	call dein#add('groenewege/vim-less')
+	call dein#add('vim-ruby/vim-ruby')
+	call dein#add('leafgarland/typescript-vim')
+	call dein#add('mitsuhiko/vim-python-combined')
+	call dein#add('vim-perl/vim-perl')
+	call dein#add('jrk/vim-ocaml')
 
-" filetype shit
-call dein#add('rust-lang/rust.vim')
-call dein#add('zah/nim.vim')
-call dein#add('toyamarinyon/vim-swift')
-call dein#add('mxw/vim-jsx')
-call dein#add('sheerun/vim-json')
-call dein#add('sheerun/yajs.vim')
-call dein#add('othree/html5.vim')
-call dein#add('jdonaldson/vaxe')
-call dein#add('tpope/vim-git')
-call dein#add('sudar/vim-arduino-syntax')
-call dein#add('neovimhaskell/haskell-vim')
-call dein#add('robotvert/vim-nginx')
-call dein#add('tpope/vim-markdown')
-call dein#add('groenewege/vim-less')
-call dein#add('vim-ruby/vim-ruby')
-call dein#add('leafgarland/typescript-vim')
-call dein#add('mitsuhiko/vim-python-combined')
-call dein#add('vim-perl/vim-perl')
-call dein#add('jrk/vim-ocaml')
+	call dein#add('heavenshell/vim-jsdoc')
 
-call dein#add('heavenshell/vim-jsdoc')
-
-call dein#end()
+	call dein#end()
+	call dein#save_state()
+endif
 
 " ~~~~~~~ basics ~~~~~~~
 set noshowmode
@@ -121,7 +127,7 @@ let g:deoplete#enable_at_startup = 1
 
 " neomake
 autocmd! BufWritePost,BufEnter * Neomake
-let g:neomake_javascript_enabled_makers = ['eslint']
+"let g:neomake_javascript_enabled_makers = ['eslint']
 let g:neomake_verbose = 0
 
 "bufline
@@ -136,7 +142,8 @@ let g:lightline = {
     \   [ 'fugitive', 'filename' ] ]
     \},
     \'component_function': {
-    \   'fugitive': 'LL_fugitive'
+    \   'fugitive': 'LL_fugitive',
+    \   'filename': 'LL_filename'
     \}
     \}
 
@@ -145,5 +152,6 @@ function! LL_fugitive()
   return exists('*fugitive#head') ? fugitive#head() : ''
 endfunction
 
-" ~~~~~~~~~~ project configs ~~~~~~~~
-au BufRead,BufNewFile,BufEnter /Users/jackson/Projects/rrg-app-v2/* setlocal ts=2 sts=2 sw=2 expandtab " Crossfit RRG 2 space tabs
+function! LL_filename()
+    return fnamemodify(expand("%"), ":~:.")
+endfunction
