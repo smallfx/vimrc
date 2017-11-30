@@ -16,6 +16,7 @@ call dein#add('embear/vim-localvimrc')
 call dein#add('qpkorr/vim-bufkill')
 call dein#add('t9md/vim-choosewin')
 call dein#add('justinmk/vim-sneak')
+call dein#add('tpope/vim-surround')
 
 " color schemes
 call dein#add('mhartington/oceanic-next')
@@ -73,8 +74,13 @@ set tabstop=4
 set shiftwidth=4
 set softtabstop=4
 filetype plugin indent on
-set listchars=tab:▸\ ,eol:¬
+set listchars=tab:▸\ ,eol:¬,trail:·
 set list
+
+" prolly use 2 spaces for JS
+autocmd Filetype javascript setlocal ts=2 sw=2 expandtab
+autocmd Filetype css setlocal ts=2 sw=2 expandtab
+autocmd Filetype less setlocal ts=2 sw=2 expandtab
 
 " ~~~~~ key remap ~~~~~
 " space is leader
@@ -144,6 +150,3 @@ let g:lightline = {
 function! LL_fugitive()
   return exists('*fugitive#head') ? fugitive#head() : ''
 endfunction
-
-" ~~~~~~~~~~ project configs ~~~~~~~~
-au BufRead,BufNewFile,BufEnter /Users/jackson/Projects/rrg-app-v2/* setlocal ts=2 sts=2 sw=2 expandtab " Crossfit RRG 2 space tabs
