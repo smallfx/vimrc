@@ -9,20 +9,22 @@ if dein#load_state(expand('~/.cache/dein'))
 
 	" 'feature' packages
 	call dein#add('Shougo/dein.vim')
+	call dein#add('haya14busa/dein-command.vim')
 	call dein#add('Shougo/unite.vim')
+  call dein#add('Shougo/vimproc', {'build' : 'make'})
+  call dein#add('rstacruz/vim-fastunite')
+	call dein#add('Shougo/neomru.vim')
 	call dein#add('Shougo/vimfiler.vim')
-	call dein#add('Shougo/deoplete.nvim')
-	call dein#add('neomake/neomake')
 	call dein#add('tpope/vim-fugitive')
+	call dein#add('ap/vim-buftabline')
 	call dein#add('itchyny/lightline.vim')
-	call dein#add('bling/vim-bufferline')
-	call dein#add('mileszs/ack.vim')
 	call dein#add('embear/vim-localvimrc')
 	call dein#add('qpkorr/vim-bufkill')
 	call dein#add('t9md/vim-choosewin')
 	call dein#add('justinmk/vim-sneak')
 	call dein#add('editorconfig/editorconfig-vim')
 	call dein#add('tpope/vim-surround')
+	call dein#add('w0rp/ale')
 
 	" color schemes
 	call dein#add('mhartington/oceanic-next')
@@ -32,12 +34,13 @@ if dein#load_state(expand('~/.cache/dein'))
 	call dein#add('itchyny/landscape.vim')
 
 	" filetype stuff
+	call dein#add('reasonml-editor/vim-reason-plus')
 	call dein#add('rust-lang/rust.vim')
 	call dein#add('zah/nim.vim')
 	call dein#add('toyamarinyon/vim-swift')
+	call dein#add('neoclide/vim-jsx-improve')
 	call dein#add('mxw/vim-jsx')
 	call dein#add('sheerun/vim-json')
-	call dein#add('sheerun/yajs.vim')
 	call dein#add('othree/html5.vim')
 	call dein#add('jdonaldson/vaxe')
 	call dein#add('tpope/vim-git')
@@ -69,15 +72,20 @@ set nohlsearch
 set smartcase
 let g:BufKillVerbose = 0
 
+" always show error gutter
+autocmd BufEnter * sign define dummy
+autocmd BufEnter * execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
+
 " theme
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
 colorscheme landscape
 set background=dark
 
 " whitespace
-set tabstop=4
-set shiftwidth=4
-set softtabstop=4
+set tabstop=2
+set shiftwidth=2
+set softtabstop=2
+set expandtab
 filetype plugin indent on
 set listchars=tab:▸\ ,eol:¬,trail:·
 set list
@@ -90,9 +98,10 @@ autocmd Filetype less setlocal ts=2 sw=2 expandtab
 " ~~~~~ key remap ~~~~~
 " space is leader
 let mapleader = "\<Space>"
-"
-" chaelin clears last search highlight
-"nnoremap <C-L> :noh<CR><C-L>:<backspace>
+
+" unite fastsearch
+map <C-p> [unite]p
+map <C-g> [unite]g
 
 " move faster
 nnoremap <c-j> 4j
@@ -111,35 +120,32 @@ nmap  -  <Plug>(choosewin)
 " file tree view
 map <silent> <C-n> :VimFiler<CR>
 
-" " Copy to clipboard
+" copy to clipboard
 vnoremap  <leader>y  "+y
 nnoremap  <leader>Y  "+yg_
 nnoremap  <leader>y  "+y
 nnoremap  <leader>yy  "+yy
 
-" " Paste from clipboard
+" paste from clipboard
 nnoremap <leader>p "+p
 nnoremap <leader>P "+P
 vnoremap <leader>p "+p
 vnoremap <leader>P "+P
 
+" desensitize search case
+nnoremap / /\c
+nnoremap ? ?\c
+
 " ~~~~~~~ plug config ~~~~~~~~
-"vimfiler
+" ale
+let g:ale_fixers = {
+\   'javascript': ['eslint', 'prettier'],
+\}
+
+" vimfiler
 let g:vimfiler_as_default_explorer = 1
 
-" deoplete on
-let g:deoplete#enable_at_startup = 1
-
-" neomake
-autocmd! BufWritePost,BufEnter * Neomake
-"let g:neomake_javascript_enabled_makers = ['eslint']
-let g:neomake_verbose = 0
-
-"bufline
-let g:bufferline_echo = 1
-let g:bufferline_rotate = 2
-
-"lightline
+" lightline
 let g:lightline = {
     \'colorscheme': 'landscape',
     \'active': {
