@@ -22,7 +22,7 @@ if dein#load_state(expand('~/.cache/dein'))
 	call dein#add('qpkorr/vim-bufkill')
 	call dein#add('t9md/vim-choosewin')
 	call dein#add('justinmk/vim-sneak')
-	call dein#add('editorconfig/editorconfig-vim')
+	"call dein#add('editorconfig/editorconfig-vim')
 	call dein#add('tpope/vim-surround')
 	call dein#add('w0rp/ale')
 
@@ -34,6 +34,7 @@ if dein#load_state(expand('~/.cache/dein'))
 	call dein#add('itchyny/landscape.vim')
 
 	" filetype stuff
+  call dein#add('elixir-lang/vim-elixir')
 	call dein#add('reasonml-editor/vim-reason-plus')
 	call dein#add('rust-lang/rust.vim')
 	call dein#add('zah/nim.vim')
@@ -73,8 +74,9 @@ set smartcase
 let g:BufKillVerbose = 0
 
 " always show error gutter
-autocmd BufEnter * sign define dummy
-autocmd BufEnter * execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
+"autocmd BufEnter * sign define dummy
+"autocmd BufEnter * execute 'sign place 9999 line=1 name=dummy buffer=' . bufnr('')
+let g:ale_sign_column_always = 1
 
 " theme
 let $NVIM_TUI_ENABLE_TRUE_COLOR=1
@@ -83,17 +85,13 @@ set background=dark
 
 " whitespace
 set tabstop=2
-set shiftwidth=2
-set softtabstop=2
+set shiftwidth=0
+set softtabstop=-1
+set shiftround
 set expandtab
 filetype plugin indent on
 set listchars=tab:▸\ ,eol:¬,trail:·
 set list
-
-" prolly use 2 spaces for JS
-autocmd Filetype javascript setlocal ts=2 sw=2 expandtab
-autocmd Filetype css setlocal ts=2 sw=2 expandtab
-autocmd Filetype less setlocal ts=2 sw=2 expandtab
 
 " ~~~~~ key remap ~~~~~
 " space is leader
@@ -139,7 +137,10 @@ nnoremap ? ?\c
 " ~~~~~~~ plug config ~~~~~~~~
 " ale
 let g:ale_fixers = {
-\   'javascript': ['eslint', 'prettier'],
+\   'javascript': ['eslint'],
+\}
+let g:ale_linters = {
+\   'javascript': ['eslint'],
 \}
 
 " vimfiler
