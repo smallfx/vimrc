@@ -1,8 +1,8 @@
 " python support
-let g:python2_host_prog = '/usr/local/bin/python'
-let g:python3_host_prog = '/usr/local/bin/python3'
+let g:python2_host_prog = '/usr/bin/python'
+let g:python3_host_prog = '/usr/bin/python3'
 
-" dein setup
+" plugins (dein) setup
 set runtimepath^=~/.config/nvim/dein/repos/github.com/Shougo/dein.vim/
 if dein#load_state(expand('~/.config/nvim/dein'))
   call dein#begin(expand('~/.config/nvim/dein/'))
@@ -10,10 +10,7 @@ if dein#load_state(expand('~/.config/nvim/dein'))
   " 'feature' packages
   call dein#add('Shougo/dein.vim')
   call dein#add('haya14busa/dein-command.vim')
-  call dein#add('Shougo/unite.vim')
-  call dein#add('Shougo/vimproc', {'build' : 'make'})
-  call dein#add('rstacruz/vim-fastunite')
-  call dein#add('Shougo/neomru.vim')
+  call dein#add('Shougo/denite.nvim')
   call dein#add('Shougo/defx.nvim')
   call dein#add('tpope/vim-fugitive')
   call dein#add('itchyny/lightline.vim')
@@ -23,7 +20,10 @@ if dein#load_state(expand('~/.config/nvim/dein'))
   call dein#add('justinmk/vim-sneak')
   call dein#add('editorconfig/editorconfig-vim')
   call dein#add('tpope/vim-surround')
-  call dein#add('w0rp/ale')
+  call dein#add('neoclide/coc.nvim', {
+   \ 'build': 'npm install'
+   \})
+  " call dein#add('w0rp/ale')
 
   " color schemes
   call dein#add('mhartington/oceanic-next')
@@ -32,6 +32,8 @@ if dein#load_state(expand('~/.config/nvim/dein'))
   call dein#add('vim-scripts/oceandeep')
   call dein#add('itchyny/landscape.vim')
   call dein#add('ayu-theme/ayu-vim')
+  call dein#add('NLKNguyen/papercolor-theme')
+  call dein#add('rakr/vim-one')
 
   " filetype stuff
   call dein#add('elixir-lang/vim-elixir')
@@ -51,16 +53,18 @@ if dein#load_state(expand('~/.config/nvim/dein'))
   call dein#add('tpope/vim-markdown')
   call dein#add('groenewege/vim-less')
   call dein#add('vim-ruby/vim-ruby')
-  call dein#add('leafgarland/typescript-vim')
+  call dein#add('HerringtonDarkholme/yats.vim')
   call dein#add('mitsuhiko/vim-python-combined')
   call dein#add('vim-perl/vim-perl')
   call dein#add('jrk/vim-ocaml')
+  call dein#add('ajmwagar/vim-deus')
 
   call dein#add('heavenshell/vim-jsdoc')
 
   call dein#end()
   call dein#save_state()
 endif
+
 
 " ~~~~~~~ basics ~~~~~~~
 if (has("termguicolors"))
@@ -77,31 +81,91 @@ set so=999 "center cursor
 set nohlsearch
 set smartcase
 let g:BufKillVerbose = 0
-
-" always show error gutter
-let g:ale_sign_column_always = 1
+set signcolumn=number
 
 " theme
-set background="dark"
-colorscheme luna
+colorscheme landscape
+set background=dark
 
 " whitespace
-set tabstop=2
-set shiftwidth=0
-set softtabstop=-1
-set shiftround
 set expandtab
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
+set shiftround
 filetype plugin indent on
 set listchars=tab:▸\ ,eol:¬,trail:·
 set list
+hi NonText ctermfg=grey guifg=grey40
+
+
+" ~~~~~ denite stuff ~~~~~
+try
+" make denite not have deoplete inside it
+"autocmd FileType denite-filter call s:denite_filter_my_settings()
+"function! s:denite_filter_my_settings() abort
+"  call deoplete#custom#buffer_option('auto_complete', v:false)
+"endfunction
+
+" Use ripgrep for searching current directory for files
+" By default, ripgrep will respect rules in .gitignore
+"   --files: Print each file that would be searched (but don't search)
+"   --glob:  Include or exclues files for searching that match the given glob
+"            (aka ignore .git files)
+"
+call denite#custom#var('file/rec', 'command', ['rg', '--files', '--glob', '!.git'])
+
+" Use ripgrep in place of "grep"
+call denite#custom#var('grep', 'command', ['rg'])
+
+" Custom options for ripgrep
+"   --vimgrep:  Show results with every match on it's own line
+"   --hidden:   Search hidden directories and files
+"   --heading:  Show the file name above clusters of matches from each file
+"   --S:        Search case insensitively if the pattern is all lowercase
+call denite#custom#var('grep', 'default_opts', ['--hidden', '--vimgrep', '--heading', '-S'])
+
+" Recommended defaults for ripgrep via Denite docs
+call denite#custom#var('grep', 'recursive_opts', [])
+call denite#custom#var('grep', 'pattern_opt', ['--regexp'])
+call denite#custom#var('grep', 'separator', ['--'])
+call denite#custom#var('grep', 'final_opts', [])
+
+" Remove date from buffer list
+call denite#custom#var('buffer', 'date_format', '')
+
+let s:denite_options = {'default' : {
+\ 'split': 'floating',
+\ 'start_filter': 1,
+\ 'auto_resize': 1,
+\ 'source_names': 'short',
+\ 'prompt': 'λ ',
+\ 'highlight_matched_char': 'QuickFixLine',
+\ 'highlight_matched_range': 'Visual',
+\ 'highlight_window_background': 'Visual',
+\ 'highlight_filter_background': 'DiffAdd',
+\ 'winrow': 1,
+\ 'vertical_preview': 1
+\ }}
+
+" Loop through denite options and enable them
+function! s:profile(opts) abort
+  for l:fname in keys(a:opts)
+    for l:dopt in keys(a:opts[l:fname])
+      call denite#custom#option(l:fname, l:dopt, a:opts[l:fname][l:dopt])
+    endfor
+  endfor
+endfunction
+
+call s:profile(s:denite_options)
+catch
+  echo 'Denite not installed. It should work after running :PlugInstall'
+endtry
+
 
 " ~~~~~ key remap ~~~~~
 " space is leader
 let mapleader = "\<Space>"
-
-" unite fastsearch
-map <C-p> [unite]p
-map <C-g> [unite]g
 
 " move faster
 nnoremap <c-j> 4j
@@ -118,7 +182,7 @@ nnoremap <Leader>q :BD<CR>
 nmap  -  <Plug>(choosewin)
 
 " file tree view
-map <silent> <C-n> :Defx<CR>
+map <silent> <C-n> :Defx `expand('%:p:h')` -search=`expand('%:p')`<CR>
 
 " copy to clipboard
 vnoremap  <leader>y  "+y
@@ -136,7 +200,154 @@ vnoremap <leader>P "+P
 nnoremap / /\c
 nnoremap ? ?\c
 
-" ~~~~~~~ plug config ~~~~~~~~
+" denite
+map <C-p> :DeniteProjectDir file/rec<CR>
+map <C-g> :<C-u>Denite grep:. -no-empty<CR>
+nnoremap <leader>j :<C-u>DeniteCursorWord grep:.<CR>
+nnoremap <silent> <leader>h :Denite help<CR>
+nnoremap <silent> <leader>v :Denite vison<CR>
+nnoremap <silent> <leader>b :Denite buffer<CR>
+nnoremap <silent> <leader>l :Denite line<CR>
+nnoremap <silent> <leader>c :Denite -auto-action=preview colorscheme<CR>
+
+autocmd FileType denite call s:denite_my_settings()
+function! s:denite_my_settings() abort
+  nnoremap <silent><buffer><expr> <CR>
+  \ denite#do_map('do_action')
+  nnoremap <silent><buffer><expr> <C-v>
+  \ denite#do_map('do_action', 'vsplit')
+  nnoremap <silent><buffer><expr> <C-h>
+  \ denite#do_map('do_action', 'split')
+  nnoremap <silent><buffer><expr> d
+  \ denite#do_map('do_action', 'delete')
+  nnoremap <silent><buffer><expr> p
+  \ denite#do_map('do_action', 'preview')
+  nnoremap <silent><buffer><expr> q
+  \ denite#do_map('quit')
+  nnoremap <silent><buffer><expr> i
+  \ denite#do_map('open_filter_buffer')
+  nnoremap <silent><buffer><expr> <Space>
+  \ denite#do_map('toggle_select').'j'
+endfunction
+
+" defx
+autocmd FileType defx call s:defx_my_settings()
+function! s:defx_my_settings() abort
+  " Define mappings
+  nnoremap <silent><buffer><expr> <CR>
+  \ defx#do_action('open')
+  nnoremap <silent><buffer><expr> c
+  \ defx#do_action('copy')
+  nnoremap <silent><buffer><expr> m
+  \ defx#do_action('move')
+  nnoremap <silent><buffer><expr> p
+  \ defx#do_action('paste')
+  nnoremap <silent><buffer><expr> l
+  \ defx#do_action('open')
+  nnoremap <silent><buffer><expr> E
+  \ defx#do_action('open', 'vsplit')
+  nnoremap <silent><buffer><expr> P
+  \ defx#do_action('open', 'pedit')
+  nnoremap <silent><buffer><expr> K
+  \ defx#do_action('new_directory')
+  nnoremap <silent><buffer><expr> N
+  \ defx#do_action('new_file')
+  nnoremap <silent><buffer><expr> d
+  \ defx#do_action('remove')
+  nnoremap <silent><buffer><expr> r
+  \ defx#do_action('rename')
+  nnoremap <silent><buffer><expr> x
+  \ defx#do_action('execute_system')
+  nnoremap <silent><buffer><expr> yy
+  \ defx#do_action('yank_path')
+  nnoremap <silent><buffer><expr> .
+  \ defx#do_action('toggle_ignored_files')
+  nnoremap <silent><buffer><expr> h
+  \ defx#do_action('cd', ['..'])
+  nnoremap <silent><buffer><expr> <BS>
+  \ defx#do_action('cd', ['..'])
+  nnoremap <silent><buffer><expr> ~
+  \ defx#do_action('cd')
+  nnoremap <silent><buffer><expr> q
+  \ defx#do_action('quit')
+  nnoremap <silent><buffer><expr> <Space>
+  \ defx#do_action('toggle_select') . 'j'
+  nnoremap <silent><buffer><expr> *
+  \ defx#do_action('toggle_select_all')
+  nnoremap <silent><buffer><expr> j
+  \ line('.') == line('$') ? 'gg' : 'j'
+  nnoremap <silent><buffer><expr> k
+  \ line('.') == 1 ? 'G' : 'k'
+  nnoremap <silent><buffer><expr> <C-l>
+  \ defx#do_action('redraw')
+  nnoremap <silent><buffer><expr> <C-g>
+  \ defx#do_action('print')
+  nnoremap <silent><buffer><expr> cd
+  \ defx#do_action('change_vim_cwd')
+endfunction
+
+
+" ~~~~~ conquer of completion stuff, mosltly keys ~~~~~
+" Give more space for displaying messages.
+set cmdheight=2
+
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=300
+
+" Don't pass messages to |ins-completion-menu|.
+set shortmess+=c
+
+" Use tab for trigger completion with characters ahead and navigate.
+" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
+" other plugin before putting this into your config.
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+
+function! s:check_back_space() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1]  =~# '\s'
+endfunction
+
+" Make <CR> auto-select the first completion item and notify coc.nvim to
+" format on enter, <cr> could be remapped by other vim plugin
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
+                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Highlight the symbol and its references when holding the cursor.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
+
+" Formatting selected code.
+xmap <leader>f  <Plug>(coc-format-selected)
+nmap <leader>f  <Plug>(coc-format-selected)
+
+augroup mygroup
+  autocmd!
+  " Setup formatexpr specified filetype(s).
+  autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+  " Update signature help on jump placeholder.
+  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+augroup end
+
+
+" ~~~~~~~ other plug config ~~~~~~~~
 " ale
 let g:ale_fixers = {
 \   'javascript': ['eslint'],
@@ -153,80 +364,10 @@ let g:lightline = {
     \'colorscheme': 'landscape',
     \'active': {
     \'left': [ [ 'mode', 'paste'],
-    \   [ 'fugitive', 'filename' ] ]
+    \   [ 'fugitive', 'cocstatus', 'readonly', 'filename', 'modified' ] ]
     \},
     \'component_function': {
-    \   'fugitive': 'LL_fugitive',
-    \   'filename': 'LL_filename'
+    \   'fugitive': 'FugitiveHead',
+    \   'cocstatus': 'coc#status'
     \}
     \}
-
-" ~~~~~~~~~ my funcs ~~~~~~~~
-function! LL_fugitive()
-  return exists('*fugitive#head') ? fugitive#head() : ''
-endfunction
-
-function! LL_filename()
-    return fnamemodify(expand("%"), ":~:.")
-endfunction
-
-
-
-" defx Config: start -----------------
-
-autocmd FileType defx call s:defx_my_settings()
-    function! s:defx_my_settings() abort
-     " Define mappings
-      nnoremap <silent><buffer><expr> <CR>
-     \ defx#do_action('open')
-      nnoremap <silent><buffer><expr> c
-     \ defx#do_action('copy')
-      nnoremap <silent><buffer><expr> m
-     \ defx#do_action('move')
-      nnoremap <silent><buffer><expr> p
-     \ defx#do_action('paste')
-      nnoremap <silent><buffer><expr> l
-     \ defx#do_action('open')
-      nnoremap <silent><buffer><expr> E
-     \ defx#do_action('open', 'vsplit')
-      nnoremap <silent><buffer><expr> P
-     \ defx#do_action('open', 'pedit')
-      nnoremap <silent><buffer><expr> K
-     \ defx#do_action('new_directory')
-      nnoremap <silent><buffer><expr> N
-     \ defx#do_action('new_file')
-      nnoremap <silent><buffer><expr> d
-     \ defx#do_action('remove')
-      nnoremap <silent><buffer><expr> r
-     \ defx#do_action('rename')
-      nnoremap <silent><buffer><expr> x
-     \ defx#do_action('execute_system')
-      nnoremap <silent><buffer><expr> yy
-     \ defx#do_action('yank_path')
-      nnoremap <silent><buffer><expr> .
-     \ defx#do_action('toggle_ignored_files')
-      nnoremap <silent><buffer><expr> h
-     \ defx#do_action('cd', ['..'])
-      nnoremap <silent><buffer><expr> <BS>
-     \ defx#do_action('cd', ['..'])
-      nnoremap <silent><buffer><expr> ~
-     \ defx#do_action('cd')
-      nnoremap <silent><buffer><expr> q
-     \ defx#do_action('quit')
-      nnoremap <silent><buffer><expr> <Space>
-     \ defx#do_action('toggle_select') . 'j'
-      nnoremap <silent><buffer><expr> *
-     \ defx#do_action('toggle_select_all')
-      nnoremap <silent><buffer><expr> j
-     \ line('.') == line('$') ? 'gg' : 'j'
-      nnoremap <silent><buffer><expr> k
-     \ line('.') == 1 ? 'G' : 'k'
-      nnoremap <silent><buffer><expr> <C-l>
-     \ defx#do_action('redraw')
-      nnoremap <silent><buffer><expr> <C-g>
-     \ defx#do_action('print')
-      nnoremap <silent><buffer><expr> cd
-     \ defx#do_action('change_vim_cwd')
-    endfunction
-
-" defx Config: end -------------------
