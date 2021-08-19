@@ -1,6 +1,7 @@
 " python support
-let g:python2_host_prog = '/usr/bin/python'
-let g:python3_host_prog = '/usr/bin/python3'
+let g:python_host_prog = system('(type pyenv &>/dev/null && echo -n "$(pyenv root)/versions/$(pyenv global | grep python2)/bin/python") || echo -n $(which python2)')
+let g:python3_host_prog = system('(type pyenv &>/dev/null && echo -n "$(pyenv root)/versions/$(pyenv global | grep python3)/bin/python") || echo -n $(which python3)')
+
 
 " plugins (dein) setup
 set runtimepath^=~/.config/nvim/dein/repos/github.com/Shougo/dein.vim/
@@ -34,32 +35,17 @@ if dein#load_state(expand('~/.config/nvim/dein'))
   call dein#add('ayu-theme/ayu-vim')
   call dein#add('NLKNguyen/papercolor-theme')
   call dein#add('rakr/vim-one')
+  call dein#add('ajmwagar/vim-deus')
 
   " filetype stuff
-  call dein#add('elixir-lang/vim-elixir')
-  call dein#add('reasonml-editor/vim-reason-plus')
-  call dein#add('rust-lang/rust.vim')
+  call dein#add('nvim-treesitter/nvim-treesitter', {'merged': 0, 'hook_post_update': 'TSUpdate'})
   call dein#add('zah/nim.vim')
-  call dein#add('toyamarinyon/vim-swift')
-  call dein#add('neoclide/vim-jsx-improve')
-  call dein#add('mxw/vim-jsx')
-  call dein#add('sheerun/vim-json')
-  call dein#add('othree/html5.vim')
   call dein#add('jdonaldson/vaxe')
   call dein#add('tpope/vim-git')
   call dein#add('sudar/vim-arduino-syntax')
   call dein#add('neovimhaskell/haskell-vim')
   call dein#add('robotvert/vim-nginx')
-  call dein#add('tpope/vim-markdown')
-  call dein#add('groenewege/vim-less')
-  call dein#add('vim-ruby/vim-ruby')
-  call dein#add('HerringtonDarkholme/yats.vim')
-  call dein#add('mitsuhiko/vim-python-combined')
   call dein#add('vim-perl/vim-perl')
-  call dein#add('jrk/vim-ocaml')
-  call dein#add('ajmwagar/vim-deus')
-
-  call dein#add('heavenshell/vim-jsdoc')
 
   call dein#end()
   call dein#save_state()
@@ -98,6 +84,23 @@ set listchars=tab:▸\ ,eol:¬,trail:·
 set list
 hi NonText ctermfg=grey guifg=grey40
 
+" ~~~~~ treesitter stuff ~~~~~
+lua <<EOF
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = 'maintained', -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  indent = {
+    enable = true
+  },
+  highlight = {
+    enable = true,              -- false will disable the whole extension
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+EOF
 
 " ~~~~~ denite stuff ~~~~~
 try
