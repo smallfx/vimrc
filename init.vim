@@ -2,55 +2,55 @@
 let g:python_host_prog = system('(type pyenv &>/dev/null && echo -n "$(pyenv root)/versions/$(pyenv global | grep python2)/bin/python") || echo -n $(which python2)')
 let g:python3_host_prog = system('(type pyenv &>/dev/null && echo -n "$(pyenv root)/versions/$(pyenv global | grep python3)/bin/python") || echo -n $(which python3)')
 
+" Set dein base path (required)
+let s:dein_base = '~/.cache/dein/'
 
-" plugins (dein) setup
-set runtimepath^=~/.config/nvim/dein/repos/github.com/Shougo/dein.vim/
-if dein#load_state(expand('~/.config/nvim/dein'))
-  call dein#begin(expand('~/.config/nvim/dein/'))
+" Set dein source path (required)
+let s:dein_src = '~/.cache/dein/repos/github.com/Shougo/dein.vim'
 
-  " 'feature' packages
-  call dein#add('Shougo/dein.vim')
-  call dein#add('haya14busa/dein-command.vim')
-  call dein#add('Shougo/denite.nvim')
-  call dein#add('Shougo/defx.nvim')
-  call dein#add('tpope/vim-fugitive')
-  call dein#add('itchyny/lightline.vim')
-  call dein#add('embear/vim-localvimrc')
-  call dein#add('qpkorr/vim-bufkill')
-  call dein#add('t9md/vim-choosewin')
-  call dein#add('justinmk/vim-sneak')
-  call dein#add('editorconfig/editorconfig-vim')
-  call dein#add('tpope/vim-surround')
-  call dein#add('neoclide/coc.nvim', {
-   \ 'build': 'npm install'
-   \})
-  " call dein#add('w0rp/ale')
+" Set dein runtime path (required)
+execute 'set runtimepath+=' .. s:dein_src
 
-  " color schemes
-  call dein#add('mhartington/oceanic-next')
-  call dein#add('tyrannicaltoucan/vim-deep-space')
-  call dein#add('notpratheek/vim-luna')
-  call dein#add('vim-scripts/oceandeep')
-  call dein#add('itchyny/landscape.vim')
-  call dein#add('ayu-theme/ayu-vim')
-  call dein#add('NLKNguyen/papercolor-theme')
-  call dein#add('rakr/vim-one')
-  call dein#add('ajmwagar/vim-deus')
+call dein#begin(expand('~/.config/nvim/dein/'))
 
-  " filetype stuff
-  call dein#add('nvim-treesitter/nvim-treesitter', {'merged': 0, 'hook_post_update': 'TSUpdate'})
-  call dein#add('zah/nim.vim')
-  call dein#add('jdonaldson/vaxe')
-  call dein#add('tpope/vim-git')
-  call dein#add('sudar/vim-arduino-syntax')
-  call dein#add('neovimhaskell/haskell-vim')
-  call dein#add('robotvert/vim-nginx')
-  call dein#add('vim-perl/vim-perl')
+" 'feature' packages
+call dein#add('Shougo/dein.vim')
+call dein#add('haya14busa/dein-command.vim')
+call dein#add('Shougo/denite.nvim')
+call dein#add('Shougo/defx.nvim')
+call dein#add('tpope/vim-fugitive')
+call dein#add('itchyny/lightline.vim')
+call dein#add('embear/vim-localvimrc')
+call dein#add('qpkorr/vim-bufkill')
+call dein#add('t9md/vim-choosewin')
+call dein#add('justinmk/vim-sneak')
+call dein#add('editorconfig/editorconfig-vim')
+call dein#add('tpope/vim-surround')
+call dein#add('neoclide/coc.nvim', {
+  \ 'build': 'npm install'
+  \})
 
-  call dein#end()
-  call dein#save_state()
-endif
+" color schemes
+call dein#add('mhartington/oceanic-next')
+call dein#add('tyrannicaltoucan/vim-deep-space')
+call dein#add('notpratheek/vim-luna')
+call dein#add('vim-scripts/oceandeep')
+call dein#add('itchyny/landscape.vim')
+call dein#add('ayu-theme/ayu-vim')
+call dein#add('NLKNguyen/papercolor-theme')
+call dein#add('rakr/vim-one')
+call dein#add('ajmwagar/vim-deus')
 
+" filetype stuff
+call dein#add('nvim-treesitter/nvim-treesitter', {'merged': 0, 'hook_post_update': 'TSUpdate'})
+call dein#add('zah/nim.vim')
+call dein#add('jdonaldson/vaxe')
+call dein#add('tpope/vim-git')
+
+call dein#end()
+
+" holy crap
+let g:zig_fmt_autosave = 0
 
 " ~~~~~~~ basics ~~~~~~~
 if (has("termguicolors"))
@@ -103,14 +103,26 @@ require'nvim-treesitter.configs'.setup {
 }
 EOF
 
+" ~~~~ defx stuff ~~~~
+autocmd BufEnter,VimEnter,BufNew,BufWinEnter,BufRead,BufCreate
+        \ * if isdirectory(expand('<amatch>'))
+        \   | call s:browse_check(expand('<amatch>')) | endif
+
+  function! s:browse_check(path) abort
+    if bufnr('%') != expand('<abuf>')
+      return
+    endif
+
+    " Disable netrw.
+    augroup FileExplorer
+      autocmd!
+    augroup END
+
+    execute 'Defx' a:path
+  endfunction
+
 " ~~~~~ denite stuff ~~~~~
 try
-" make denite not have deoplete inside it
-"autocmd FileType denite-filter call s:denite_filter_my_settings()
-"function! s:denite_filter_my_settings() abort
-"  call deoplete#custom#buffer_option('auto_complete', v:false)
-"endfunction
-
 " Use ripgrep for searching current directory for files
 " By default, ripgrep will respect rules in .gitignore
 "   --files: Print each file that would be searched (but don't search)
@@ -333,7 +345,7 @@ nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
 " Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
+"autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
@@ -347,21 +359,8 @@ augroup mygroup
   " Setup formatexpr specified filetype(s).
   autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
   " Update signature help on jump placeholder.
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+  "autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
-
-
-" ~~~~~~~ other plug config ~~~~~~~~
-" ale
-let g:ale_fixers = {
-\   'javascript': ['eslint'],
-\}
-let g:ale_linters = {
-\   'javascript': ['eslint'],
-\}
-
-" vimfiler
-let g:vimfiler_as_default_explorer = 1
 
 " lightline
 let g:lightline = {
