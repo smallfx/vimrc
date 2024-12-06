@@ -1,6 +1,6 @@
 " python support
-let g:python_host_prog = system('(type pyenv &>/dev/null && echo -n "$(pyenv root)/versions/$(pyenv global | grep python2)/bin/python") || echo -n $(which python2)')
-let g:python3_host_prog = system('(type pyenv &>/dev/null && echo -n "$(pyenv root)/versions/$(pyenv global | grep python3)/bin/python") || echo -n $(which python3)')
+let g:python_host_prog = system('echo -n $(which python2)')
+let g:python3_host_prog = system('echo -n $(which python3)')
 
 " Set dein base path (required)
 let s:dein_base = '~/.cache/dein/'
@@ -9,12 +9,12 @@ let s:dein_base = '~/.cache/dein/'
 let s:dein_src = '~/.cache/dein/repos/github.com/Shougo/dein.vim'
 
 " Set dein runtime path (required)
-execute 'set runtimepath+=' .. s:dein_src
+execute 'set runtimepath+=' . s:dein_src
 
 call dein#begin(expand('~/.config/nvim/dein/'))
+call dein#add('Shougo/dein.vim')
 
 " 'feature' packages
-call dein#add('Shougo/dein.vim')
 call dein#add('haya14busa/dein-command.vim')
 call dein#add('Shougo/denite.nvim')
 call dein#add('Shougo/defx.nvim')
@@ -24,11 +24,8 @@ call dein#add('embear/vim-localvimrc')
 call dein#add('qpkorr/vim-bufkill')
 call dein#add('t9md/vim-choosewin')
 call dein#add('justinmk/vim-sneak')
-call dein#add('editorconfig/editorconfig-vim')
 call dein#add('tpope/vim-surround')
-call dein#add('neoclide/coc.nvim', {
-  \ 'build': 'npm install'
-  \})
+call dein#add('neoclide/coc.nvim', { 'merged': 0, 'rev': 'release' })
 
 " color schemes
 call dein#add('mhartington/oceanic-next')
