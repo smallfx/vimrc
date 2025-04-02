@@ -2,52 +2,175 @@
 let g:python_host_prog = system('echo -n $(which python2)')
 let g:python3_host_prog = system('echo -n $(which python3)')
 
-" Set dein base path (required)
-let s:dein_base = '~/.cache/dein/'
+" ~~~~~ key remap ~~~~~
+" space is leader
+let mapleader = "\<Space>"
 
-" Set dein source path (required)
-let s:dein_src = '~/.cache/dein/repos/github.com/Shougo/dein.vim'
+" move faster
+nnoremap <c-j> 4j
+nnoremap <c-k> 4k
 
-" Set dein runtime path (required)
-execute 'set runtimepath+=' . s:dein_src
+" move between buffers
+nnoremap <c-a> :bp<cr>
+nnoremap <c-s> :bn<cr>
 
-call dein#begin(expand('~/.config/nvim/dein/'))
-call dein#add('Shougo/dein.vim')
+" bufkill
+nnoremap <Leader>q :BD<CR>
 
-" 'feature' packages
-call dein#add('haya14busa/dein-command.vim')
-call dein#add('Shougo/denite.nvim')
-call dein#add('Shougo/defx.nvim')
-call dein#add('tpope/vim-fugitive')
-call dein#add('itchyny/lightline.vim')
-call dein#add('embear/vim-localvimrc')
-call dein#add('qpkorr/vim-bufkill')
-call dein#add('t9md/vim-choosewin')
-call dein#add('justinmk/vim-sneak')
-call dein#add('tpope/vim-surround')
-call dein#add('neoclide/coc.nvim', { 'merged': 0, 'rev': 'release' })
+" choosewin
+nmap  -  <Plug>(choosewin)
 
-" color schemes
-call dein#add('mhartington/oceanic-next')
-call dein#add('tyrannicaltoucan/vim-deep-space')
-call dein#add('notpratheek/vim-luna')
-call dein#add('vim-scripts/oceandeep')
-call dein#add('itchyny/landscape.vim')
-call dein#add('ayu-theme/ayu-vim')
-call dein#add('NLKNguyen/papercolor-theme')
-call dein#add('rakr/vim-one')
-call dein#add('ajmwagar/vim-deus')
+" file tree view
+map <silent> <C-n> :Defx `expand('%:p:h')` -search=`expand('%:p')`<CR>
 
-" filetype stuff
-call dein#add('nvim-treesitter/nvim-treesitter', {'merged': 0, 'hook_post_update': 'TSUpdate'})
-call dein#add('zah/nim.vim')
-call dein#add('jdonaldson/vaxe')
-call dein#add('tpope/vim-git')
+" copy to clipboard
+vnoremap  <leader>y  "+y
+nnoremap  <leader>Y  "+yg_
+nnoremap  <leader>y  "+y
+nnoremap  <leader>yy  "+yy
 
-call dein#end()
+" paste from clipboard
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
+vnoremap <leader>p "+p
+vnoremap <leader>P "+P
 
-" holy crap
-let g:zig_fmt_autosave = 0
+" desensitize search case
+nnoremap / /\c
+nnoremap ? ?\c
+
+" lightline
+let g:lightline = {
+    \'colorscheme': 'landscape',
+    \'active': {
+    \'left': [ [ 'mode', 'paste'],
+    \   [ 'fugitive', 'cocstatus', 'readonly', 'filename', 'modified' ] ]
+    \},
+    \'component_function': {
+    \   'fugitive': 'FugitiveHead',
+    \   'cocstatus': 'coc#status'
+    \}
+    \}
+
+lua <<EOF
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
+  if vim.v.shell_error ~= 0 then
+    vim.api.nvim_echo({
+      { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+      { out, "WarningMsg" },
+      { "\nPress any key to exit..." },
+    }, true, {})
+    vim.fn.getchar()
+    os.exit(1)
+  end
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Setup lazy.nvim
+require("lazy").setup({
+  spec = {
+    {
+      "vhyrro/luarocks.nvim",
+      priority = 1000, -- Very high priority is required, luarocks.nvim should run as the first plugin in your config.
+      config = true,
+    },
+    {
+      "saghen/blink.cmp",
+      -- Use latest release tag pre-built binaries.
+      version = "v1.*",
+      -- `opts` is optional.
+      opts = {
+        completion = {
+          documentation = {
+            -- Automatically show the documentation window when selecting a completion item.
+            auto_show = true,
+          },
+        }
+      }
+    },
+    {
+      "neovim/nvim-lspconfig",
+      dependencies = {
+        "saghen/blink.cmp",
+      },
+    },
+    {
+      "pmizio/typescript-tools.nvim",
+      dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+      config = function()
+        require("typescript-tools").setup({})
+      end
+    },
+    {
+      "folke/snacks.nvim",
+      keys = {
+        { "gd", function() Snacks.picker.lsp_definitions() end, desc = "Goto definition." },
+        { "gr", function() Snacks.picker.lsp_references() end, nowait = true, desc = "References" },
+        { "gt", function() Snacks.picker.lsp_type_definitions() end, desc = "Goto Type Definition" },
+      },
+    },
+    {
+      "nvim-treesitter/nvim-treesitter",
+      -- Specify for lazy the main module to use for config() and opts().
+      -- Required as lazy can not figure this out for treesitter automatically.
+      main = "nvim-treesitter.configs",
+      opts = {
+        highlight = {
+          -- Enable the sytax highlighting module. All modules are disabled by default.
+          enable = true,
+        },
+        indent = {
+          enable = true,
+        },
+        ensure_installed = {
+          "css",
+          "html",
+          "javascript",
+          "scss",
+          "tsx",
+          "typescript",
+          "lua"
+        },
+        -- Automatically install missing parsers when entering buffer.
+        auto_install = true,
+        ignore_install = {"phpdoc"}
+      },
+      -- Lazy will execute this on install or update of the plugin.
+      -- This updates parsers when the plugin is updated or installed.
+      build = ":TSUpdate"
+    },
+    -- 'feature' packages
+    "Shougo/denite.nvim",
+    "Shougo/defx.nvim",
+    "tpope/vim-fugitive",
+    "itchyny/lightline.vim",
+    "embear/vim-localvimrc",
+    "qpkorr/vim-bufkill",
+    "t9md/vim-choosewin",
+    "tpope/vim-surround",
+    -- color schemes
+    "mhartington/oceanic-next",
+    "tyrannicaltoucan/vim-deep-space",
+    "notpratheek/vim-luna",
+    "vim-scripts/oceandeep",
+    "itchyny/landscape.vim",
+    "ayu-theme/ayu-vim",
+    "NLKNguyen/papercolor-theme",
+    "rakr/vim-one",
+    "ajmwagar/vim-deus",
+    "olimorris/onedarkpro.nvim"
+  },
+  -- Configure any other settings here. See the documentation for more details.
+  -- colorscheme that will be used when installing plugins.
+  install = { colorscheme = { "landscape" } },
+  -- automatically check for plugin updates
+  checker = { enabled = false }
+})
+EOF
 
 " ~~~~~~~ basics ~~~~~~~
 if (has("termguicolors"))
@@ -81,24 +204,7 @@ set listchars=tab:▸\ ,eol:¬,trail:·
 set list
 hi NonText ctermfg=grey guifg=grey40
 
-" ~~~~~ treesitter stuff ~~~~~
-lua <<EOF
-require'nvim-treesitter.configs'.setup {
-  ensure_installed = 'all', -- one of "all", "maintained" (parsers with maintainers), or a list of languages
-  ignore_install = { "phpdoc" },
-  indent = {
-    enable = true
-  },
-  highlight = {
-    enable = true,              -- false will disable the whole extension
-    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-    -- Using this option may slow down your editor, and you may see some duplicate highlights.
-    -- Instead of true it can also be a list of languages
-    additional_vim_regex_highlighting = false,
-  },
-}
-EOF
+" map <space>e :lua vim.diagnostic.open_float(0, {scope="line"})<CR>
 
 " ~~~~ defx stuff ~~~~
 autocmd BufEnter,VimEnter,BufNew,BufWinEnter,BufRead,BufCreate
@@ -176,49 +282,10 @@ catch
 endtry
 
 
-" ~~~~~ key remap ~~~~~
-" space is leader
-let mapleader = "\<Space>"
-
-" move faster
-nnoremap <c-j> 4j
-nnoremap <c-k> 4k
-
-" move between buffers
-nnoremap <c-a> :bp<cr>
-nnoremap <c-s> :bn<cr>
-
-" bufkill
-nnoremap <Leader>q :BD<CR>
-
-" choosewin
-nmap  -  <Plug>(choosewin)
-
-" file tree view
-map <silent> <C-n> :Defx `expand('%:p:h')` -search=`expand('%:p')`<CR>
-
-" copy to clipboard
-vnoremap  <leader>y  "+y
-nnoremap  <leader>Y  "+yg_
-nnoremap  <leader>y  "+y
-nnoremap  <leader>yy  "+yy
-
-" paste from clipboard
-nnoremap <leader>p "+p
-nnoremap <leader>P "+P
-vnoremap <leader>p "+p
-vnoremap <leader>P "+P
-
-" desensitize search case
-nnoremap / /\c
-nnoremap ? ?\c
-
 " denite
 map <C-p> :DeniteProjectDir file/rec<CR>
 map <C-g> :<C-u>Denite grep:. -no-empty<CR>
 nnoremap <leader>j :<C-u>DeniteCursorWord grep:.<CR>
-nnoremap <silent> <leader>h :Denite help<CR>
-nnoremap <silent> <leader>v :Denite vison<CR>
 nnoremap <silent> <leader>b :Denite buffer<CR>
 nnoremap <silent> <leader>l :Denite line<CR>
 nnoremap <silent> <leader>c :Denite -auto-action=preview colorscheme<CR>
@@ -299,58 +366,6 @@ function! s:defx_my_settings() abort
   \ defx#do_action('change_vim_cwd')
 endfunction
 
-
-" ~~~~~ conquer of completion stuff, mosltly keys ~~~~~
-" Give more space for displaying messages.
-set cmdheight=2
-
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=300
-
-" Don't pass messages to |ins-completion-menu|.
-set shortmess+=c
-
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-function! CheckBackspace() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ CheckBackspace() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-" Use `[g` and `]g` to navigate diagnostics
-" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" Highlight the symbol and its references when holding the cursor.
-"autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
-
-" Formatting selected code.
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
-
 augroup mygroup
   autocmd!
   " Setup formatexpr specified filetype(s).
@@ -358,16 +373,3 @@ augroup mygroup
   " Update signature help on jump placeholder.
   "autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
-
-" lightline
-let g:lightline = {
-    \'colorscheme': 'landscape',
-    \'active': {
-    \'left': [ [ 'mode', 'paste'],
-    \   [ 'fugitive', 'cocstatus', 'readonly', 'filename', 'modified' ] ]
-    \},
-    \'component_function': {
-    \   'fugitive': 'FugitiveHead',
-    \   'cocstatus': 'coc#status'
-    \}
-    \}
