@@ -17,9 +17,6 @@ nnoremap <c-s> :bn<cr>
 " bufkill
 nnoremap <Leader>q :BD<CR>
 
-" choosewin
-nmap  -  <Plug>(choosewin)
-
 " file tree view
 map <silent> <C-n> :Defx `expand('%:p:h')` -search=`expand('%:p')`<CR>
 
@@ -70,6 +67,13 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- whatever
+vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, {})
+
+vim.keymap.set('n', '-', function ()
+  vim.cmd('ChooseWin')
+end);
+
 -- Setup lazy.nvim
 require("lazy").setup({
   spec = {
@@ -82,8 +86,12 @@ require("lazy").setup({
       "saghen/blink.cmp",
       -- Use latest release tag pre-built binaries.
       version = "v1.*",
+      -- keymap time
       -- `opts` is optional.
       opts = {
+        keymap = {
+          preset = 'enter',
+        },
         completion = {
           documentation = {
             -- Automatically show the documentation window when selecting a completion item.
@@ -94,15 +102,19 @@ require("lazy").setup({
     },
     {
       "neovim/nvim-lspconfig",
-      dependencies = {
-        "saghen/blink.cmp",
-      },
+      dependencies = { "saghen/blink.cmp" },
     },
     {
       "pmizio/typescript-tools.nvim",
-      dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
+      dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig", "saghen/blink.cmp" },
       config = function()
-        require("typescript-tools").setup({})
+        require("typescript-tools").setup({
+          settings = {
+            complete_function_calls = true,
+          },
+          completeFunctionCalls = true,
+          capabilities = require("blink.cmp").get_lsp_capabilities()
+        })
       end
     },
     {
@@ -204,7 +216,7 @@ set listchars=tab:▸\ ,eol:¬,trail:·
 set list
 hi NonText ctermfg=grey guifg=grey40
 
-" map <space>e :lua vim.diagnostic.open_float(0, {scope="line"})<CR>
+map <space>e :lua vim.diagnostic.open_float(0, {scope="line"})<CR>
 
 " ~~~~ defx stuff ~~~~
 autocmd BufEnter,VimEnter,BufNew,BufWinEnter,BufRead,BufCreate
