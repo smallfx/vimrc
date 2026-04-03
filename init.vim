@@ -3,7 +3,6 @@ lua require('config')
 
 " --- everlasting important things
 " basics
->>>>>>> Stashed changes
 syntax enable
 set noshowmode
 set hidden
