@@ -1,0 +1,45 @@
+{
+  "plugins": {
+    "blink.cmp": {
+      "rev": "451168851e8e2466bc97ee3e026c3dcb9141ce07",
+      "src": "https://github.com/Saghen/blink.cmp",
+      "version": ">=0.0.0"
+    },
+    "landscape.vim": {
+      "rev": "dcdd360f98d35d3b2c0bd1ce9f29ee053f906d07",
+      "src": "https://github.com/itchyny/landscape.vim"
+    },
+    "lightline.vim": {
+      "rev": "e358557e1a9f9fc860416c8eb2e34c0404078155",
+      "src": "https://github.com/itchyny/lightline.vim"
+    },
+    "lsp-progress.nvim": {
+      "rev": "f6d5af10563b895ff846346f57cbd4451439f4c1",
+      "src": "https://github.com/linrongbin16/lsp-progress.nvim"
+    },
+    "netrw_keepdir_fix": {
+      "rev": "4dd42b32664bdb8d6f35120230e3508368a76054",
+      "src": "https://github.com/dzirtusss/netrw_keepdir_fix"
+    },
+    "nvim-lspconfig": {
+      "rev": "8e2084bf5e40c79c1f42210a6ef96a0a4793a763",
+      "src": "https://github.com/neovim/nvim-lspconfig"
+    },
+    "snacks.nvim": {
+      "rev": "ad9ede6a9cddf16cedbd31b8932d6dcdee9b716e",
+      "src": "https://github.com/folke/snacks.nvim"
+    },
+    "vim-bufkill": {
+      "rev": "3113181d0c1bfb8719f3ddcd2e2f35a8d763d1e5",
+      "src": "https://github.com/qpkorr/vim-bufkill"
+    },
+    "vim-fugitive": {
+      "rev": "3b753cf8c6a4dcde6edee8827d464ba9b8c4a6f0",
+      "src": "https://github.com/tpope/vim-fugitive"
+    },
+    "vim-surround": {
+      "rev": "3d188ed2113431cf8dac77be61b842acb64433d9",
+      "src": "https://github.com/tpope/vim-surround"
+    }
+  }
+}
