@@ -1,12 +1,13 @@
 vim.pack.add({
 	'https://github.com/itchyny/landscape.vim',
+	'https://github.com/itchyny/lightline.vim',
 	'https://github.com/tpope/vim-surround',
 	'https://github.com/qpkorr/vim-bufkill',
 	'https://github.com/tpope/vim-fugitive',
 	'https://github.com/neovim/nvim-lspconfig',
 	{ src = 'https://github.com/Saghen/blink.cmp', version = vim.version.range('*') }, -- need the funny version arg for binary stuff?
-	'https://github.com/itchyny/lightline.vim',
 	'https://github.com/linrongbin16/lsp-progress.nvim',
+	'https://github.com/smallfx/vaffle.vim'
 })
 
 require('lspprog').setup()

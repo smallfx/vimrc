@@ -1,7 +1,7 @@
 {
   "plugins": {
     "blink.cmp": {
-      "rev": "451168851e8e2466bc97ee3e026c3dcb9141ce07",
+      "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
       "src": "https://github.com/Saghen/blink.cmp",
       "version": ">=0.0.0"
     },
@@ -22,12 +22,16 @@
       "src": "https://github.com/dzirtusss/netrw_keepdir_fix"
     },
     "nvim-lspconfig": {
-      "rev": "8e2084bf5e40c79c1f42210a6ef96a0a4793a763",
+      "rev": "9ccd58a7949091c0cc2777d4e92a45a209c808c1",
       "src": "https://github.com/neovim/nvim-lspconfig"
     },
     "snacks.nvim": {
       "rev": "ad9ede6a9cddf16cedbd31b8932d6dcdee9b716e",
       "src": "https://github.com/folke/snacks.nvim"
+    },
+    "vaffle.vim": {
+      "rev": "e69f2f4fde73d878e6881c48a55348de26bd6c0d",
+      "src": "https://github.com/smallfx/vaffle.vim"
     },
     "vim-bufkill": {
       "rev": "3113181d0c1bfb8719f3ddcd2e2f35a8d763d1e5",

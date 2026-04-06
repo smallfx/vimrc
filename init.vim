@@ -73,13 +73,33 @@ nnoremap <leader>rn :lua vim.lsp.buf.rename()<CR>
 " show error under cursor on space-e
 map <leader>e :lua vim.diagnostic.open_float(0, {scope="line"})<CR>
 " filer
-" todo: replace netrw with vim-molder
-map <C-n> :Ex<CR>
+" set rtp^=../../Projects/vaffle.vim/ " for local vaffle fork dev
+function! Filer()
+	let s:buf_file_path = expand("%")
+	if s:buf_file_path == ''
+		execute ":Vaffle<CR>"
+	else
+		execute ":Vaffle %<CR>"
+	endif
+endfunction
+map <silent> <C-n> :call Filer()<CR>
+function! s:customize_vaffle() abort
+	nmap <buffer> <BS> <Plug>(vaffle-open-parent)
+	nmap <buffer> N <Plug>(vaffle-new-file)
+	setlocal nonumber
+	setlocal scl=no
+	setlocal winbar=vaffle
+endfunction
+augroup vimrc_vaffle
+	autocmd!
+	autocmd FileType vaffle call s:customize_vaffle()
+augroup END
 " grep
 set grepprg=rg\ --vimgrep\ --glob\ !.git
 function! Grep(...)
 	return system(join([&grepprg] + [expandcmd(join(a:000, ' '))], ' '))
 endfunction
+command! -nargs=+ Grep cgetexpr Grep(<f-args>)
 map <C-g> :Grep<Space>
 " quick-fix window (grep results) auto-open and auto-close (and just normal close on q)
 augroup quickfix
